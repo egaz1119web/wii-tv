@@ -56,11 +56,8 @@
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden|uiMode"
             android:screenOrientation="landscape">
             <!-- Not a HOME candidate: WiiMenuActivity is the only one, so Home and power-on land on it even
-                 when Android drops the saved home preference. Still in the TV's own app list. -->
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
-            </intent-filter>
+                 when Android drops the saved home preference. Not in the app list either: on Fire TV, Home on
+                 Fire opens the package's leanback entry, which must be the channel menu. -->
         </activity>
 
         <!-- The home screen, in the style of the old console channel menu. -->
@@ -77,6 +74,11 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <!-- The app list entry, and what Home on Fire starts on Fire TV. -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
 
