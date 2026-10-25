@@ -1547,7 +1547,12 @@ public class WiiMenuView extends View {
                 String day = new SimpleDateFormat("EEE", locale).format(at).replace(".", "");
                 if (!day.isEmpty()) day = day.substring(0, 1).toUpperCase(locale) + day.substring(1);
                 boolean monthFirst = "US".equals(locale.getCountry()) || "en".equals(locale.getLanguage());
-                date = day + " " + new SimpleDateFormat(monthFirst ? "M/d" : "d/M", locale).format(at);
+                if ("ja".equals(locale.getLanguage())) {
+                    // The Japanese console writes the weekday after the date, in brackets: 10/25(日).
+                    date = new SimpleDateFormat("M/d", locale).format(at) + "(" + day + ")";
+                } else {
+                    date = day + " " + new SimpleDateFormat(monthFirst ? "M/d" : "d/M", locale).format(at);
+                }
             }
         }
         if (!date.equals(dateText) || dateScale != s) {
