@@ -163,4 +163,8 @@
     <string name="games_key_a">OK: %1$s</string>
     <string name="games_key_b">戻る: %1$s</string>
     <string name="games_key_menu">赤ボタン長押し: RetroArch メニュー</string>
+    <string name="hide_app">ホームから隠す</string>
+    <string name="hidden_apps_title">隠したアプリ</string>
+    <string name="no_hidden_apps">隠したアプリはありません。チャンネルで ☰ ボタンを押すと隠せます。</string>
+    <string name="unhide_title">ホームに戻すアプリ</string>
 </resources>

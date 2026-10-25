@@ -62,6 +62,8 @@ public class WiiMenuView extends View {
         void onInputsButton();
         /** The welcome screen started to leave: the menu is coming up, as after power-on. */
         void onIntroDismissed();
+        /** The remote's Menu key: channel is the one under the hand, or null on an empty slot or a button. */
+        void onMenuKey(Channel channel);
     }
 
     static final class Channel {
@@ -545,6 +547,14 @@ public class WiiMenuView extends View {
             return true;
         }
         if (menuOpen) return menuKey(keyCode);
+        if (keyCode == KeyEvent.KEYCODE_MENU) {
+            if (event.getRepeatCount() > 0) return true;
+            putDown(false);
+            okHeld = false;
+            removeCallbacks(okHeldLong);
+            listener.onMenuKey(focus >= 0 && focus < channels.size() ? channels.get(focus) : null);
+            return true;
+        }
         if (carrying) return carryKey(keyCode, event.getRepeatCount());
         switch (keyCode) {
             case KeyEvent.KEYCODE_DPAD_LEFT:

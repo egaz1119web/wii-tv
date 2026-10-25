@@ -43,6 +43,8 @@ public class WiiMenuActivity extends Activity implements WiiMenuView.Listener {
     /** The owner's channel order, in Order's format; the other home screen keeps its own in Order.FILE_NAME. */
     private static final String ORDER_FILE = "wii-order.txt";
     private static final String PREFS = "wii_menu";
+    /** Packages hidden with the remote's Menu key, in PREFS. */
+    private static final String USER_HIDDEN = "user_hidden";
     /** Where the hand was when the menu last left the screen, in PREFS: a channel key, or a slot or button. */
     private static final String HAND_CHANNEL = "hand_channel";
     private static final String HAND_SLOT = "hand_slot";
@@ -279,6 +281,7 @@ public class WiiMenuActivity extends Activity implements WiiMenuView.Listener {
         Intent query = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LEANBACK_LAUNCHER);
         List<ResolveInfo> found = pm.queryIntentActivities(query, 0);
         Set<String> hidden = new HashSet<>(Arrays.asList(getResources().getStringArray(R.array.hidden_apps)));
+        hidden.addAll(userHidden());
         boolean games = getResources().getBoolean(R.bool.games_channel);
         // RetroArch's own menu is a button in the Games channel, so its tile would only be a second way in.
         if (games) hidden.addAll(Arrays.asList(RetroArch.PACKAGES));
@@ -320,6 +323,56 @@ public class WiiMenuActivity extends Activity implements WiiMenuView.Listener {
         if (!saved.isEmpty()) Collections.sort(channels, (a, b) -> Order.compare(saved, a.key, b.key));
         menu.setChannels(channels);
         menu.useHandSprites(MiiUiSprites.from(MiiPack.peek()));
+    }
+
+    /** Apps the owner hid from the menu with the remote's Menu key, on top of hidden_apps in config.xml. */
+    private Set<String> userHidden() {
+        return new HashSet<>(getSharedPreferences(PREFS, MODE_PRIVATE).getStringSet(USER_HIDDEN, Collections.emptySet()));
+    }
+
+    private void setHidden(String pkg, boolean hide) {
+        Set<String> set = userHidden();
+        if (!(hide ? set.add(pkg) : set.remove(pkg))) return;
+        getSharedPreferences(PREFS, MODE_PRIVATE).edit().putStringSet(USER_HIDDEN, set).apply();
+        reloadApps();
+    }
+
+    @Override
+    public void onMenuKey(WiiMenuView.Channel channel) {
+        List<WiiMenuView.MenuItem> items = new ArrayList<>();
+        // The Mii and Games channels are this app's own; only installed apps can be hidden.
+        if (channel != null && !channel.key.startsWith(getPackageName())) {
+            final String pkg = channel.key;
+            items.add(new WiiMenuView.MenuItem(getString(R.string.hide_app), () -> setHidden(pkg, true)));
+            if (!userHidden().isEmpty()) {
+                items.add(new WiiMenuView.MenuItem(getString(R.string.hidden_apps_title), this::showHiddenApps));
+            }
+            items.add(new WiiMenuView.MenuItem(getString(R.string.mii_cancel), () -> { }));
+            menu.showMenu(channel.label, items);
+        } else {
+            showHiddenApps();
+        }
+    }
+
+    /** The hidden apps; choosing one puts it back on the menu. */
+    private void showHiddenApps() {
+        PackageManager pm = getPackageManager();
+        List<WiiMenuView.MenuItem> items = new ArrayList<>();
+        for (String pkg : userHidden()) {
+            String label = pkg;
+            try {
+                label = pm.getApplicationLabel(pm.getApplicationInfo(pkg, 0)).toString();
+            } catch (PackageManager.NameNotFoundException e) {
+                // Uninstalled since: still listed, so it can be taken off the list.
+            }
+            items.add(new WiiMenuView.MenuItem(label, () -> setHidden(pkg, false)));
+        }
+        if (items.isEmpty()) {
+            Toast.makeText(this, R.string.no_hidden_apps, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Collections.sort(items, (a, b) -> a.label.compareToIgnoreCase(b.label));
+        menu.showMenu(getString(R.string.unhide_title), items);
     }
 
     private File orderFile() {
@@ -436,6 +489,10 @@ public class WiiMenuActivity extends Activity implements WiiMenuView.Listener {
         if (liveTv != null) {
             final Intent tv = liveTv.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             items.add(new WiiMenuView.MenuItem(getString(R.string.live_tv), () -> open(tv)));
+        }
+        // The way back for hidden apps, where a TV without inputs (Fire TV) would otherwise show nothing.
+        if (!userHidden().isEmpty()) {
+            items.add(new WiiMenuView.MenuItem(getString(R.string.hidden_apps_title), this::showHiddenApps));
         }
         if (items.isEmpty()) {
             Toast.makeText(this, R.string.no_inputs, Toast.LENGTH_SHORT).show();

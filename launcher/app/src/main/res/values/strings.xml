@@ -176,4 +176,10 @@
     <!-- The remote's keys in a game, after the colour buttons (Start, Select and the console's own). -->
     <string name="games_key_a">OK: %1$s</string>
     <string name="games_key_b">Back: %1$s</string>
-    <string name="games_key_menu">Hold red: RetroArch menu</string></resources>
+    <string name="games_key_menu">Hold red: RetroArch menu</string>
+    <!-- The remote's Menu key on a channel (WiiMenuActivity): hide it, or bring hidden apps back. -->
+    <string name="hide_app">Hide from Home</string>
+    <string name="hidden_apps_title">Hidden apps</string>
+    <string name="no_hidden_apps">No hidden apps. Press Menu on a channel to hide it.</string>
+    <string name="unhide_title">Put back on Home</string>
+</resources>
