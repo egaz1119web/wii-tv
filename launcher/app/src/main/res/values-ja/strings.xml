@@ -128,7 +128,7 @@
     <string name="mii_height">身長</string>
     <string name="mii_weight">体格</string>
     <string name="mii_welcome_title">Mii広場</string>
-    <string name="mii_welcome_body">ここにはMiiたちが住んでいます。左のボタンで自分のMiiをつくるか、Miiを指して OK を押してください。</string>
+    <string name="mii_welcome_body">ここにはMiiたちが住んでいます。左のボタンで自分のMiiをつくれます。Miiを指して OK で選べます。</string>
     <string name="mii_help_title">ヘルプ</string>
     <string name="mii_help_body">Miiを指して OK で選び、もう一度 OK で持ち上げて運べます。消すボタンに落とすと削除、修正ボタンに落とすと修正できます。右下の笛でみんなが整列し、右上のボタンでパレードが始まります。</string>
     <string name="mii_exit_title">Wiiメニュー</string>
